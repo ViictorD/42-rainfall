@@ -1,0 +1,12 @@
+# Run the program with gdb
+# We see argv[1] is a number and its converted with atoi then it will be compared to another number
+# So we will just check the compared number
+
+objdump -D ./level0 | less
+> /main
+
+# We can se the cmp statement after the atoi call. It's 0x1ac so 423.
+
+So we start the program with this number
+./level0 423
+> cat /home/user/level1/.pass

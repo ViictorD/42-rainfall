@@ -1,0 +1,72 @@
+int	main()
+{
+	main:
+	
+	printf("%p, %p \n", auth(0x8049aac), service(0x8049ab0));
+
+	char *buffer[32];
+	if (fgets(buffer, 128, STDIN) == 0)
+		goto ret;
+	
+	char	*auth = "auth ";
+	for (int i = 0; i < 5; i++)
+	{
+		if (buffer[i] != auth[i])
+			goto reset; 
+	}
+
+	auth(0x8049aac) = malloc(4);
+	auth(0x8049aac) = 0; // 4 bytes
+		
+	int nb = strlen(buffer) - 5;
+
+	if (nb < 30)
+	{
+		strcpy(buffer, buffer + 5);
+	}
+
+	reset:
+	char *reset = "reset";
+
+	for (int i = 0; i < 5; i++)
+	{
+		if (buffer[i] != reset[i])
+			goto service;
+	}
+	free(auth(0x8049aac));
+
+	service:
+	char *service = "service";
+
+	for (int i = 0; i < 7; i++)
+	{
+		if (buffer[i] != service[i])
+			goto login;
+	}
+
+	service(0x8049ab0) = strdup(buffer + 7);
+
+	login:
+	char *login = "login";
+
+	for (int i = 0; i < 5; i++)
+	{
+		if (buffer[i] != login[i])
+			goto main;
+	}
+
+	int nb = auth(0x8049aac) + 0x20;
+	if (nb == 0)
+	{
+		fwrite("Password:\n", 1, 10, auth(0x8049aac));	
+		goto main;
+	}
+	
+	system("/bin/sh");
+	goto main;
+
+
+	ret:
+	return 0;
+}
+

@@ -1,0 +1,30 @@
+void	p(char *str, char *str2)
+{
+	puts(str2);
+	read(0, 0xbfffe660, 4096);
+	char *ptr = strchr(0xbfffe660, 10);
+	*ptr = 0;
+	strncpy(str, 0xbfffe660, 20);
+
+}
+
+void	pp(char *str)
+{
+	p(0xbffff698, " - "); // Zone dans .bss ?
+	p(0xbffff6ac, " - "); // Idem
+	
+	strcpy(str, 0xbffff698);
+	
+	int nb = strlen(0xbffff698);
+	*((void*)(0xbffff698 + nb)) = ' ';
+	strcat(str, 0xbffff6ac);
+}
+
+int		main()
+{
+	char	buffer[22]; // 0xbffff6e6
+
+	pp(buffer);
+	puts(buffer);
+	return 0;	
+}

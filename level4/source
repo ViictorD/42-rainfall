@@ -1,0 +1,21 @@
+void	p(char *buffer)
+{
+	printf(buffer);
+}
+
+int		n()
+{
+	char	buffer[512];
+
+	fgets(buffer, 512, STDIN);
+	p(buffer);
+	int *ptr = (int *)0x8049810;
+	if (0x1025544 == *ptr)
+		return system("/bin/cat /home/user/level5/.pass");
+	return 0;
+}
+
+int		main()
+{
+	return n;	
+}

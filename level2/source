@@ -1,0 +1,20 @@
+char	*p()
+{
+	char	buffer[76];
+
+	fflush(STDOUT);
+	gets(buffer);
+	if (buffer + 80 & 0xb0000000 == 0xb0000000) // A l'endroit de la nouvelle adresse
+	{
+		printf("(p)", buffer + 80);
+		exit(1);
+	}
+	puts(buffer);
+	return strdup(buffer);
+}
+
+int main()
+{
+	p();
+	return 0;	
+}

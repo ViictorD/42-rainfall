@@ -1,0 +1,22 @@
+void	n()
+{
+	system("/bin/cat /home/user/level7/.pass");
+}
+
+void	m()
+{
+	puts("Nope");	
+}
+
+int main(int ac, char **av)
+{
+	void	*ptr = malloc(64); // stocke a [esp + 0x1c], adresse = 0x804a008
+	void	*ptr2 = malloc(4); // stocke a [ebp - 8], [esp + 0x18] adresse = 0x804a050. Donc ptr + 72
+
+	*ptr2 = (void*)0x8048468; // espace memoire 'm'
+	
+	strcpy(ptr, argv[1]);
+	//	call *ptr2;
+	return 0;	
+}
+

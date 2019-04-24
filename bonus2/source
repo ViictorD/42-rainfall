@@ -1,0 +1,53 @@
+void	greetuser(char *str)
+{
+	if (language(0x8049988) == 1)
+	{
+		[ebp - 0x48] = *((int*)0x8048717); // "Hyvää päivää "
+		[ebp - 0x48] + 0x4 = *((int*)0x8048717) + 0x04;
+		[ebp - 0x48] + 0x8 = *((int*)0x8048717) + 0x08;
+		[ebp - 0x48] + 0xc = *((int*)0x8048717) + 0x0c;
+		[ebp - 0x48] + 0x10 = *((short*)0x8048717) + 0x10;
+		[ebp - 0x48] + 0x12 = *((char*)0x8048717) + 0x12;
+	}
+	else if (language(0x8049988) == 2)
+	{
+		[ebp - 0x48] = *((int*)0x804872a); // "Goedemiddag! "
+		[ebp - 0x48 + 0x4] = *((int *)0x804872a) + 0x4;
+		[ebp - 0x48 + 0x8] = *((int *)0x804872a) + 0x8;
+		[ebp - 0x48 + 0xc] = *((short *)0x804872a) + 0xc;
+	}
+	else if (language(0x8049988) == 0)
+	{
+		[ebp - 0x48] = *((int*)0x8048710);	 // "Hello "
+		[ebp - 0x48 + 0x4] = *((short*)0x8048710 + 0x4);
+		[ebp - 0x48 + 0x6] = *((char*)0x8048710 + 0x6);
+	}
+	strcat([ebp-0x48], str);
+	puts([ebp-0x48]);
+}
+
+int		main()
+{
+	if (argc != 3)
+		return 1;
+	void	*ptr = $esp + 0x50;
+	for (int i = 0; i < 13; i++)
+		*ptr + i = 0;
+		
+	strncpy(ptr, argv[1], 40);
+	strncpy(ptr + 40, argv[2], 32);
+	char 	*lang = getenv("LANG"); // esp+0x9c
+	if (lang != 0)
+	{
+		if (!memcmp(lang, "fi", 2))
+			language(0x8049988) = 1;
+		else
+		{
+			if (!memcmp(lang, "nl", 2))
+				language(0x8049988) = 2;
+		}
+	}
+	for (int i = 0; i < 19; i++)
+		$esp + i = ptr + i;
+	greetuser(ptr);
+}

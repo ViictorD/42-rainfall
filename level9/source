@@ -1,0 +1,17 @@
+int		main(int ac, char **av)
+{
+	if (argc == 1)
+		exit(1);	
+
+	void *ptr = malloc(?) // 0x804a008
+	*ptr = 0x08048848;	
+	
+	void *ptr2 = malloc(?) // 0x804a078 
+	*ptr2 = 0x08048848
+
+	ptr3 = function(); // 0x804a00c (qui contient av[1])
+
+	call *((void *)*ptr2);
+
+}
+

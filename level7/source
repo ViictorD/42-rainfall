@@ -1,0 +1,29 @@
+void	m()
+{
+	printf("%s - %d\n", (char*)0x8049960, time(0));	
+}
+
+int main(int ac, char **av)
+{
+	void	*ptr = malloc(8); // [esp + 0x1c] / 0x0804a008
+	ptr[0] = 1;
+
+	void	*ptr2 = malloc(8); // [esp + 0x20] / 0x0804a018
+	
+	void	*ptr3 = malloc(8); // [esp + 0x18] / 0x0804a028
+	ptr3[0] = 2;
+
+	ptr = malloc(8); // [esp + 0x1c] / 0x0804a038
+
+	strcpy(ptr2, av[1]);
+
+	strcpy(ptr, av[2]);
+
+	FILE fd = fopen("/home/user/level8/.pass", "r");
+
+	fgets((char*)0x8049960, 68, fd);
+
+	puts("~~"); // 0x8048703
+
+	return (0);
+}

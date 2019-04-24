@@ -1,0 +1,8 @@
+# Apres review on voit que on peux poser un 0 ou on veut sur la stack a partir de esp + 0x18.
+# le strcmp() compare esp + 0x18 et argv[1].
+# Il suffit de donner en parametre une chaine vide, pour que atoi renvoie 0 et qu'il mette le \0 a esp + 0x18.
+# Il va alors comparer argv[1] qui vaut "", et esp+0x18 qui vaut "".
+
+./bonus3 ""
+> cat /home/user/end/.pass
+

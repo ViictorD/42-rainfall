@@ -1,0 +1,14 @@
+int		main()
+{
+	int		nb = atoi(argv[1]); // esp + 0x3c
+	char	buffer[36]; // esp + 0x14
+
+	if (nb <= 9)
+	{
+		memcpy(buffer, argv[2], nb * 4);
+		if (nb != 0x574f4c46) // WOLF
+			return 0;
+		execl("/bin/sh", "sh", 0);
+	}
+	return 1;
+}
